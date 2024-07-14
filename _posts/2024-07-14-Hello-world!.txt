@@ -1,0 +1,10 @@
+---
+title: Hello word!
+date: YYYY-MM-DD HH:MM:SS +09:00
+categories: [main-category, sub-category]
+tags:
+  [
+    tag1,
+    tag2
+  ]
+---
