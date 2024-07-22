@@ -38,8 +38,11 @@ jobs:
         with:
           node-version: latest
 
+      - name: Install Dependencies
+        run: npm install
+
       - name: Build Assets
-        run: npm i && npm run build
+        run: npm run build
 
       - name: Test Site
         run: bash tools/test.sh
