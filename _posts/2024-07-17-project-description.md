@@ -115,4 +115,4 @@ tags:
 
 ## 팀의 문화/원칙 공유
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/7eaea7db-7d9d-4a0d-803d-bf18f474ae30/7ab1ed0e-b095-41a5-83b4-80afd1dc6187/Untitled.png)
+![image](https://github.com/user-attachments/assets/1c0abf7d-be8a-4ff1-9093-0e0f70839d1f)
