@@ -1,6 +1,7 @@
 ---
 title: 프로젝트 설명
 date: YYYY-MM-DD HH:MM:SS +09:00
+author: 안나(김민겸)
 categories: [프로젝트-정보, 문서]
 tags:
   [
