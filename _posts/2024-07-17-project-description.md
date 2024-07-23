@@ -1,7 +1,6 @@
 ---
 title: 프로젝트 설명
 date: YYYY-MM-DD HH:MM:SS +09:00
-author: 안나(김민겸)
 categories: [프로젝트-정보, 문서]
 tags:
   [
@@ -113,7 +112,3 @@ tags:
     <td>• 닉네임을 입력하고 모임에 신청 <br> • 10자 이하</td>
   </tr>
 </table>
-
-## 팀의 문화/원칙 공유
-
-![image](https://github.com/user-attachments/assets/1c0abf7d-be8a-4ff1-9093-0e0f70839d1f)
