@@ -1,0 +1,200 @@
+---
+title: 모우다의 이슈 해결기 - CORS (2)
+date: 2024-08-02 HH:MM:SS +09:00
+categories: [테바]
+tags:
+  [
+    CORS
+  ]
+---
+
+# CORS는 다 해결한 줄 알았는데..
+
+모우다가 로그인 기능을 개발하던 어느 날 이었습니다. 모우다는 사용자 로그인 기능을 JWT(Json Web Token) 을 사용하여 개발하기로 결정하였습니다. 그리고
+
+`WebMvcConfigurer` 가 제공하는 addInterceptors 를 기능을 사용하여 로그인 검증을 공통으로 처리할 수 있도록 구현했습니다.
+
+```java
+// WebMvcConfigurer 를 구현한 WebMvcConfig 클래스의 코드 중
+private final AuthenticationCheckInterceptor authenticationCheckInterceptor;
+
+@Override
+public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(authenticationCheckInterceptor)
+        .addPathPatterns("/v1/**")
+        .excludePathPatterns("/v1/auth/login");
+}
+
+
+```
+
+```java
+// AuthenticationCheckInterceptor.java
+
+...
+
+@Override
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	String authorizationHeader = request.getHeader("Authorization");
+
+	if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_PREFIX)) {
+		throw new AuthException(HttpStatus.UNAUTHORIZED, AuthErrorMessage.UNAUTHORIZED);
+	}
+
+	String token = extractToken(authorizationHeader);
+	authService.checkAuthentication(token);
+	return true;
+}
+
+```
+
+모우다는 `Authorization` 을 Key 로 설정한 헤더에 "Bearer” 토큰 타입 Prefix를 명시한 토큰을 사용하여 통신하기로 결정했기 때문에 위처럼 헤더의 유무와 올바른 Prefix 를 사용하였는지 검증하는 것으로 개발을 완료했습니다.
+
+![image](https://github.com/user-attachments/assets/8bd8cbab-4743-469a-8af1-7006be1b5d71)
+
+
+그러나, 모우다는 다시 만나고 싶지 않은 친구인 **CORS 에러**를 마주치게 되었습니다. 의아한 점은 인터셉터에서 사용자 로그인을 위한 패턴인 `/v1/auth/login`은 잘 작동되는 반면 나머지 모든 요청은 CORS 가 발생하는 것이었습니다. 만약 Cors 설정의 문제였다면 클라이언트 Origin 외 모든 요청(login API를 포함한)에 대해서 CORS 에러가 발생했어야 했기 때문이죠.
+
+# 원인은 Preflight 요청!
+
+원인은 바로 Preflight 요청에 있었습니다. preflight 요청은 클라이언트가 실제 요청을 보내기 전에 서버가 요청을 허용하는지 확인하기 위해 `OPTIONS` 메소드로 보내는 사전 요청으로 발생하는 특정 조건들이 존재합니다.
+
+### 1. HTTP 메소드
+
+다음 HTTP 메소드 중 하나를 사용할 때 preflight 요청을 보냅니다:
+
+-   `PUT`
+-   `DELETE`
+-   `PATCH`
+-   `OPTIONS` (명시적 요청이 아닌 경우)
+
+즉, `GET`, `HEAD`, `POST` 메소드 이외의 메소드를 사용할 때는 preflight 요청을 보냅니다.
+
+### 2. 특정 헤더 사용
+
+다음 헤더 중 하나라도 요청에 포함되어 있으면 preflight 요청을 보냅니다:
+
+-   `Accept-Language`
+-   `Content-Language`
+-   `Content-Type` (다음 값이 아닌 경우 `application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`)
+-   `Authorization`
+-   기타 커스텀 헤더
+
+### 3. Content-Type 헤더
+
+`POST` 요청의 `Content-Type` 헤더가 다음 값 중 하나가 아닌 경우 preflight 요청을 보냅니다:
+
+-   `application/x-www-form-urlencoded`
+-   `multipart/form-data`
+-   `text/plain`
+
+따라서 `Content-Type`이 `application/json` 와 `Authorization` 을 사용하여 통신하는 대부분의 모우다 API 는 Preflight 요청이 발생합니다.
+
+```bash
+
+# Preflight
+OPTIONS /doc HTTP/1.1
+Host: bar.other
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Connection: keep-alive
+Origin: <https://foo.example>
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: content-type,Autorization
+
+```
+
+Preflight 요청은 기본적으로 위와 같은 형태를 지닙니다. `Access-Control-Request-Method` 를 사용하여 보내는 본 요청의 메소드를 명시하고 , `Access-Control-Request-Headers` 에서 본 요청이 사용할 헤더를 명시하고 이를 서버가 확인하고 허용하는 메소드와 헤더일 경우에는 허용해주는 방식을 취합니다.
+
+```java
+String authorizationHeader = request.getHeader("Authorization");
+
+// Preflight 요청시에는 Authorization 헤더가 존재하지 않음
+if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_PREFIX)) {
+    throw new AuthException(HttpStatus.UNAUTHORIZED, AuthErrorMessage.UNAUTHORIZED);
+}
+
+```
+
+문제는 여기서 발생하는데요. **Preflight 요청에는 모우다 Interceptor 가 요구하는 Authorization 헤더가 존재하지 않기 때문에 요청에 대한 인증헤더를 검증하는 코드에서 에러가 발생**하는 것 이었습니다.
+
+# 해결책 : Preflight 여부를 검사하라
+
+그래서 모우다는 다음과 같이 문제를 해결했습니다.
+
+```java
+@Override
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+// 클라이언트의 요청을 검사하여 Preflight 요청일 경우, Interceptor를 통과하는 방식
+    if (isPreflightRequest(request)) {
+        return true;
+    }
+
+    String authorizationHeader = request.getHeader("Authorization");
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_PREFIX)) {
+        throw new AuthException(HttpStatus.UNAUTHORIZED, AuthErrorMessage.UNAUTHORIZED);
+    }
+
+    String token = extractToken(authorizationHeader);
+    authService.checkAuthentication(token);
+    return true;
+}
+
+private boolean isPreflightRequest(HttpServletRequest request) {
+    return isOptions(request) && hasHeaders(request) && hasMethod(request) && hasOrigin(request);
+}
+
+private boolean isOptions(HttpServletRequest request) {
+    return request.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.toString());
+}
+
+private boolean hasHeaders(HttpServletRequest request) {
+    return Objects.nonNull(request.getHeader("Access-Control-Request-Headers"));
+}
+
+private boolean hasMethod(HttpServletRequest request) {
+    return Objects.nonNull(request.getHeader("Access-Control-Request-Method"));
+}
+
+private boolean hasOrigin(HttpServletRequest request) {
+    return Objects.nonNull(request.getHeader("Origin"));
+}
+
+```
+
+그러나 위 방식은 가독성이 떨어진다는 단점이 있었습니다.
+
+## CorsUtils 의 발견
+
+모우다는 조사 중 CorsUtils 라는 CORS 에러 해결을 위한 유틸 클래스를 알게 되었습니다. 이 클래스는 스프링 웹 모듈에 포함되어 있으며, CORS 요청의 성격을 파악하고 처리하는 다양한 정적 메서드를 제공합니다. 주로 Spring MVC에서 CORS 설정과 연관된 작업을 수행할 때 유용합니다.
+
+CorsUtils 덕분에 모우다는 아래와 같이 검증 로직을 깔끔하게 정리할 수 있었습니다.
+
+```java
+@Override
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	if (CorsUtils.isPreFlightRequest(request)) {
+		return true;
+	}
+
+	String authorizationHeader = request.getHeader("Authorization");
+
+	if (authorizationHeader == null || !authorizationHeader.startsWith(AUTHORIZATION_PREFIX)) {
+		throw new AuthException(HttpStatus.UNAUTHORIZED, AuthErrorMessage.UNAUTHORIZED);
+	}
+
+	String token = extractToken(authorizationHeader);
+	authService.checkAuthentication(token);
+	return true;
+}
+
+```
+
+위 클래스는 인터셉터 뿐 아니라 스프링 시큐리티 필터를 구현할 때 등 여러 검증 기능에서 활용할 수 있습니다.
+
+# Reference
+
+-   [https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
