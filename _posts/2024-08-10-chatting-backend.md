@@ -1,10 +1,10 @@
 ---
-title: 백엔드에서 채팅 기능을 구현한 과정 
+title: 모우다 채팅 기능은 백엔드에서 어떻게 구현되었을까요?  
 date: YYYY-MM-DD HH:MM:SS +09:00
 categories: [안나]
 tags:
   [
-    채팅, Polling
+    채팅, Polling, 백엔드
   ]
 ---
 
@@ -123,7 +123,7 @@ tags:
 
 ### 롱 폴링 (Long polling)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/7eaea7db-7d9d-4a0d-803d-bf18f474ae30/74ee583e-a652-4145-9654-1608e6742b6a/Untitled.png)
+![image](https://github.com/user-attachments/assets/ee4af977-930f-4302-afcf-298b5249c59c)
 
 롱 폴링 방식은 아래 흐름으로 요청을 처리합니다.
 
