@@ -1,7 +1,7 @@
 ---
 title: 모우다 채팅 기능은 백엔드에서 어떻게 구현되었을까요?  
 date: YYYY-MM-DD HH:MM:SS +09:00
-categories: [안나]
+categories: [백엔드, 안나]
 tags:
   [
     채팅, Polling, 백엔드
