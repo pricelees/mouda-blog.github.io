@@ -14,11 +14,11 @@ order: 4
 
   <table class="team-table">
     <tr>
-      <td><img src="https://avatars.githubusercontent.com/u/76910498?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/67851124?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/114469256?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/144342800?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/110026001?v=4" width="150" height="150"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/76910498?v=4" width="150" height="150" alt="테바 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/67851124?v=4" width="150" height="150" alt="안나 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/114469256?v=4" width="150" height="150" alt="호기 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/144342800?v=4" width="150" height="150" alt="상돌 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/110026001?v=4" width="150" height="150" alt="테니 프사"/></td>
     </tr>
     <tr>
       <td>테바(김성겸) <br/><a href="https://github.com/ksk0605">@ksk0605</a></td>
@@ -33,9 +33,9 @@ order: 4
   
   <table class="team-table">
     <tr>
-      <td><img src="https://avatars.githubusercontent.com/u/107801932?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/75566149?v=4" width="150" height="150"/></td>
-      <td><img src="https://avatars.githubusercontent.com/u/77481524?v=4" width="150" height="150"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/107801932?v=4" width="150" height="150" alt="치코 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/75566149?v=4" width="150" height="150" alt="소파 프사"/></td>
+      <td><img src="https://avatars.githubusercontent.com/u/77481524?v=4" width="150" height="150" alt="수야 프사"/></td>
     </tr>
     <tr>
       <td>치코(이재민) <br/><a href="https://github.com/ksk0605">@jamel06</a></td>
