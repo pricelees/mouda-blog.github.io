@@ -158,7 +158,7 @@ private InputStream getServiceAccountDeploy() {
 }
 ```
 
-하나의 메시지에는 이름, 데이터, 알림, 토큰 및 기타 설정이 들어가 있습니다. 저희는 일단 사용할 부분은 notification과 token만을 사용해서 데이터를 보내볼텐데, 이를 자바 코드로 구현하면 다음과 같습니다.
+하나의 메시지에는 이름, 데이터, 알림, 토큰 및 기타 설정이 들어가 있습니다. 저희는 일단 notification과 token만을 사용해서 데이터를 보내볼텐데, 이를 자바 코드로 구현하면 다음과 같습니다.
 
 ```java
 Message message = Message.builder()
