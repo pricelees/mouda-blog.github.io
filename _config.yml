@@ -46,7 +46,7 @@ social:
 
 # Site Verification Settings
 webmaster_verifications:
-  google: # fill in your Google verification code
+  google: G1XfyMAcHKO8I_H7_ONYmnQePjOKPiBJ4G48DaY78-U
   bing: # fill in your Bing verification code
   alexa: # fill in your Alexa verification code
   yandex: # fill in your Yandex verification code
@@ -227,5 +227,3 @@ jekyll-archives:
 
 include:
   - _javascript
-
-google_site_verification: G1XfyMAcHKO8I_H7_ONYmnQePjOKPiBJ4G48DaY78-U
