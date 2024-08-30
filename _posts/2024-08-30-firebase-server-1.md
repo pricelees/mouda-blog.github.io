@@ -1,7 +1,7 @@
 ---
 title: Firebase를 이용하여 웹 알림 구현해보기 - 서버(1)
 date: YYYY-MM-DD HH:MM:SS +09:00
-categories: [백엔드, 상돌] # 
+categories: [백엔드, 상돌] 
 tags:
   [
     웹 알림, Firebase, 서버 구현
